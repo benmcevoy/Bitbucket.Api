@@ -23,7 +23,7 @@ namespace Bitbucket.Api
             var prRepository = new PullRequestRepository(account);
             var pullRequests = prRepository.Get();
 
-            var sql = new SqlRepository("Integrated Security=SSPI;Initial Catalog=Bitbucket;Data Source=TOWER");
+            var sql = new SqlRepository(setttings.SqlConnectionString);
 
             sql.LoadTable(branches);
             sql.LoadTable(commits);

@@ -43,10 +43,7 @@ namespace Bitbucket.Api
         {
             using (var client = new HttpClient())
             {
-                client.DefaultRequestHeaders.Authorization
-            =
-                _account.BasicAuthToken
-            ();
+                client.DefaultRequestHeaders.Authorization = _account.BasicAuthToken();
 
                 var response = client.GetAsync(
                     $"https://bitbucket.org/api/1.0/repositories/{_account.Account}/{_account.Repository}/branches")
