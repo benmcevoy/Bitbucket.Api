@@ -13,17 +13,18 @@ namespace Bitbucket.Api
         {
             var account = Radio7.ConfigReader.ConfigFactory.Instance.Resolve<AccountRepository>();
             var setttings = Radio7.ConfigReader.ConfigFactory.Instance.Resolve<Settings>();
+            var logger = new ConsoleLogger();
 
-            var branchRepository = new BranchRepository(account);
+            var branchRepository = new BranchRepository(account, logger);
             var branches = branchRepository.Get();
 
-            var commitRepository = new CommitRepository(account);
+            var commitRepository = new CommitRepository(account, logger);
             var commits = commitRepository.Get(setttings.BranchName);
 
-            var prRepository = new PullRequestRepository(account);
+            var prRepository = new PullRequestRepository(account, logger);
             var pullRequests = prRepository.Get();
 
-            var sql = new SqlRepository(setttings.SqlConnectionString);
+            var sql = new SqlRepository(setttings.ConnectionString);
 
             sql.LoadTable(branches);
             sql.LoadTable(commits);

@@ -9,10 +9,12 @@ namespace Bitbucket.Api
     public class BranchRepository
     {
         private readonly AccountRepository _account;
+        private readonly Ilogger _logger;
 
-        public BranchRepository(AccountRepository account)
+        public BranchRepository(AccountRepository account, Ilogger logger)
         {
             _account = account;
+            _logger = logger;
         }
 
         public IEnumerable<Branch> Get()
@@ -45,15 +47,18 @@ namespace Bitbucket.Api
             {
                 client.DefaultRequestHeaders.Authorization = _account.BasicAuthToken();
 
-                var response = client.GetAsync(
-                    $"https://bitbucket.org/api/1.0/repositories/{_account.Account}/{_account.Repository}/branches")
+                var url =
+                    $"https://bitbucket.org/api/1.0/repositories/{_account.Account}/{_account.Repository}/branches";
+
+                _logger.Log("GET: " + url);
+
+                var response = client.GetAsync(url)
                     .Result
                     .Content
                     .ReadAsStringAsync()
                     .Result;
 
-                return
-                    response;
+                return response;
             }
         }
 

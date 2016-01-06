@@ -1,26 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 
 namespace Bitbucket.Api
 {
     public class PullRequestRepository
     {
         private readonly AccountRepository _account;
+        private readonly Ilogger _logger;
 
-        public PullRequestRepository(AccountRepository account)
+        public PullRequestRepository(AccountRepository account, Ilogger logger)
         {
             _account = account;
+            _logger = logger;
         }
 
         public IEnumerable<PullRequest> Get()
+        {
+            return GetImpl($"https://api.bitbucket.org/2.0/repositories/{_account.Account}/{_account.Repository}/pullrequests?state=[OPEN, MERGED, DECLINED]");
+        }
+
+        private IEnumerable<PullRequest> GetImpl(string url)
         {
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = _account.BasicAuthToken();
 
-                var response = client.GetAsync(
-                    $"https://api.bitbucket.org/2.0/repositories/{_account.Account}/{_account.Repository}/pullrequests?state=[OPEN, MERGED, DECLINED]")
+                _logger.Log("GET: " + url);
+
+                var response = client.GetAsync(url)
                     .Result
                     .Content
                     .ReadAsStringAsync()
@@ -41,6 +50,13 @@ namespace Bitbucket.Api
                         Branch = pr.destination.branch.name,
                         State = pr.state
                     });
+                }
+
+                if (result.next != null)
+                {
+                    // throttle
+                    Thread.Sleep(1000);
+                    results.AddRange(GetImpl(result.next.ToString()));
                 }
 
                 return results;

@@ -1,26 +1,35 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Threading;
 
 namespace Bitbucket.Api
 {
     public class CommitRepository
     {
         private readonly AccountRepository _account;
+        private readonly Ilogger _logger;
 
-        public CommitRepository(AccountRepository account)
+        public CommitRepository(AccountRepository account, Ilogger logger)
         {
             _account = account;
+            _logger = logger;
         }
 
         public IEnumerable<Commit> Get(string branch)
+        {
+            return GetImpl(branch, $"https://api.bitbucket.org/2.0/repositories/{_account.Account}/{_account.Repository}/commits/{branch}");
+        }
+
+        private IEnumerable<Commit> GetImpl(string branch, string url)
         {
             using (var client = new HttpClient())
             {
                 client.DefaultRequestHeaders.Authorization = _account.BasicAuthToken();
 
-                var response = client.GetAsync(
-                    $"https://api.bitbucket.org/2.0/repositories/{_account.Account}/{_account.Repository}/commits/{branch}")
+                _logger.Log("GET: " + url);
+
+                var response = client.GetAsync(url)
                     .Result
                     .Content
                     .ReadAsStringAsync()
@@ -42,10 +51,16 @@ namespace Bitbucket.Api
                     });
                 }
 
+                if (result.next != null)
+                {
+                    // throttle
+                    Thread.Sleep(1000);
+                    results.AddRange(GetImpl(branch, result.next.ToString()));
+                }
+
                 return results;
             }
         }
-
     }
 
     public class Commit

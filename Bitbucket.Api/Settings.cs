@@ -3,6 +3,6 @@
     public class Settings
     {
         public string BranchName;
-        public string SqlConnectionString;
+        public string ConnectionString;
     }
 }
