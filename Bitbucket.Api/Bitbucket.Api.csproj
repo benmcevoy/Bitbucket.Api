@@ -38,7 +38,7 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Radio7.ConfigReader, Version=1.0.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Radio7.ConfigReader.1.0.1.0\lib\net40\Radio7.ConfigReader.dll</HintPath>
+      <HintPath>..\packages\Radio7.ConfigReader.1.0.2.0\lib\net40\Radio7.ConfigReader.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
